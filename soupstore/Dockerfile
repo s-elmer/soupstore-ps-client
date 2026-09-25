@@ -25,6 +25,9 @@ FROM caddy:2.11.4-alpine
 ENV XDG_CONFIG_HOME=/tmp/caddy-config XDG_DATA_HOME=/tmp/caddy-data
 COPY soupstore/Caddyfile /etc/caddy/Caddyfile
 COPY --from=build /out /srv
+# We listen on 8080, so drop caddy's file capability (cap_net_bind_service).
+# Otherwise it can't start in a container that drops all capabilities.
+RUN apk add --no-cache libcap && setcap -r /usr/bin/caddy && apk del libcap
 USER nobody
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s CMD wget -q --spider http://127.0.0.1:8080/ || exit 1
