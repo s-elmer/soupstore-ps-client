@@ -1,0 +1,43 @@
+# Serves the built Soup Store client. Runs behind the main Caddy (TLS) in
+# soupstore-ps-server/deploy, on an internal port only.
+{
+	admin off
+	auto_https off
+	persist_config off
+}
+
+:8080 {
+	root * /srv
+	header -Server
+	header {
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		# Scripts only from this site (the client uses inline scripts and eval).
+		# connect-src: the game server and PS's login server (password logins go there directly).
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' https://play.pokemonshowdown.com; font-src 'self'; connect-src 'self' https://play.pokemonshowdown.com {$CSP_SERVER_SOURCES:https://showdown.soupstore.dev wss://showdown.soupstore.dev}; frame-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://play.pokemonshowdown.com"
+	}
+
+	# Sprites and sounds aren't in the client repo; PS hosts them.
+	@psassets path /sprites/* /audio/*
+	redir @psassets https://play.pokemonshowdown.com{uri} 302
+
+	# Replay shortlinks
+	redir /r https://{$REPLAYS_HOST:replay.soupstore.dev}/ 302
+	@replaylink path_regexp replaylink ^/r/([a-z0-9-]+)$
+	redir @replaylink https://{$REPLAYS_HOST:replay.soupstore.dev}/{re.replaylink.1} 302
+
+	# "/" and anything that looks like a room id load the client (mirrors upstream .htaccess)
+	@shell path_regexp ^/([A-Za-z0-9][A-Za-z0-9-]*)?$
+	handle @shell {
+		header Cache-Control "no-cache, no-store, must-revalidate"
+		rewrite * /caches/index-old.html
+		file_server
+	}
+
+	handle {
+		# Assets referenced with a ?cachebuster can be cached for a week
+		@versioned expression {http.request.uri.query} != ""
+		header @versioned Cache-Control "public, max-age=604800"
+		file_server
+	}
+}

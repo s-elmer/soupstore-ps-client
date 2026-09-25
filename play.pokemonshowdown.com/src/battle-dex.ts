@@ -529,7 +529,8 @@ export const Dex = new class implements ModdedDex {
 		if (dex.gen === 8 && formatid.includes('bdsp')) {
 			dex = Dex.mod('gen8bdsp' as ID);
 		}
-		if (dex.gen === 9 && formatid.includes('champions')) {
+		// Soup Store formats use Champions data (see soupstore/README.md)
+		if (dex.gen === 9 && (formatid.includes('champions') || formatid.includes('soupstore'))) {
 			dex = Dex.mod('champions' as ID);
 		}
 		return dex;

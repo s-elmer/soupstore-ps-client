@@ -1609,7 +1609,7 @@ export class BattleTooltips {
 			move = this.battle.dex.moves.get(moveName);
 			maxpp = (move.pp === 1 || move.noPPBoosts ? move.pp : move.pp * 8 / 5);
 			if (this.battle.gen < 3) maxpp = Math.min(61, maxpp);
-			if (this.battle.tier.includes('Champions')) {
+			if (this.battle.tier.includes('Champions') || this.battle.tier.includes('Soup Store')) {
 				let pp = move.pp > 20 ? 20 : move.pp;
 				maxpp = (pp === 1 || move.noPPBoosts) ? pp : (pp / 5 + 1) * 4;
 			}

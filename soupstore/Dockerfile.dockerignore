@@ -1,0 +1,7 @@
+.git
+node_modules
+caches
+config/config.js
+soupstore/dist
+play.pokemonshowdown.com/sprites
+play.pokemonshowdown.com/audio

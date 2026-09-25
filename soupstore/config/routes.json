@@ -1,0 +1,8 @@
+{
+    "root": "pokemonshowdown.com",
+    "client": "play.soupstore.dev",
+    "dex": "dex.pokemonshowdown.com",
+    "replays": "replay.soupstore.dev",
+    "users": "pokemonshowdown.com/users",
+    "teams": "teams.pokemonshowdown.com"
+}

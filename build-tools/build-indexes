@@ -488,6 +488,17 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 						metagameBans[meta][species.id] = 1;
 					}
 				}
+				// Soup Store: species bans for our formats, keyed like the client's format id
+				// minus "gen9" (e.g. "soupstoreseason4"). See soupstore/README.md.
+				if (isNDChampions) {
+					for (const format of Dex.formats.all()) {
+						if (!format.id.includes('soupstore') || format.effectType !== 'Format') continue;
+						const key = format.id.replace(/^gen\d+/, '');
+						if (!Dex.formats.getRuleTable(format).isBannedSpecies(species)) continue;
+						if (!metagameBans[key]) metagameBans[key] = {};
+						metagameBans[key][species.id] = 1;
+					}
+				}
 				const nd35Pokes = Dex.formats.get(gen + 'nationaldex35pokes');
 				if (nd35Pokes.exists && !Dex.formats.getRuleTable(nd35Pokes).isBannedSpecies(species)) {
 					if (!metagameBans['nationaldex35pokes']) metagameBans['nationaldex35pokes'] = {};

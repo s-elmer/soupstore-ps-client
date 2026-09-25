@@ -367,7 +367,8 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 			if (ppUsed[1] < 0) ppUsed[1] = 0;
 			const move = this.side.battle.dex.moves.get(entry[0]);
 			let maxpp = (move.pp === 1 || move.noPPBoosts ? move.pp : move.pp * 8 / 5);
-			if (this.side.battle.tier.includes('Champions')) {
+			// Soup Store formats use Champions mechanics (see soupstore/README.md)
+			if (this.side.battle.tier.includes('Champions') || this.side.battle.tier.includes('Soup Store')) {
 				maxpp = move.pp > 20 ? 20 : move.pp;
 				maxpp = move.pp === 1 || move.noPPBoosts ? move.pp : (move.pp / 5 + 1) * 4;
 			}
@@ -957,7 +958,7 @@ export class Side {
 		}
 		pokemon.statusData.toxicTurns = 0;
 		if (this.battle.gen === 5) pokemon.statusData.sleepTurns = 0;
-		if (this.battle.tier.includes('Champions')) {
+		if (this.battle.tier.includes('Champions') || this.battle.tier.includes('Soup Store')) {
 			pokemon.timesAttacked = 0;
 		}
 		this.lastPokemon = pokemon;
@@ -3539,7 +3540,7 @@ export class Battle {
 			if (this.tier.includes('Super Staff Bros')) {
 				this.dex = Dex.mod('gen9ssb' as ID);
 			}
-			if (this.tier.includes(`Champions`)) {
+			if (this.tier.includes(`Champions`) || this.tier.includes(`Soup Store`)) {
 				this.dex = Dex.mod('champions' as ID);
 			}
 			this.log(args);

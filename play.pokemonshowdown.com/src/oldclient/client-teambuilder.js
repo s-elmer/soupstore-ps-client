@@ -30,7 +30,8 @@
 				if (this.curTeam.format.includes('bdsp')) {
 					this.curTeam.dex = Dex.mod('gen8bdsp');
 				}
-				if (this.curTeam.format.includes('champions')) {
+				// Soup Store: Champions data, but mainline EVs/IVs/levels (see soupstore/README.md)
+				if (this.curTeam.format.includes('champions') || this.curTeam.format.includes('soupstore')) {
 					this.curTeam.dex = Dex.mod('champions');
 				}
 				Storage.activeSetList = this.curSetList;
@@ -758,7 +759,8 @@
 			if (this.curTeam.format.includes('bdsp')) {
 				this.curTeam.dex = Dex.mod('gen8bdsp');
 			}
-			if (this.curTeam.format.includes('champions')) {
+			// Soup Store: Champions data, but mainline EVs/IVs/levels (see soupstore/README.md)
+			if (this.curTeam.format.includes('champions') || this.curTeam.format.includes('soupstore')) {
 				this.curTeam.dex = Dex.mod('champions');
 			}
 			Storage.activeSetList = this.curSetList = Storage.unpackTeam(this.curTeam.team);
@@ -1355,7 +1357,7 @@
 						buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
 					}
 				}
-				if (this.curTeam.gen === 9 && !isChampions) {
+				if (this.curTeam.gen === 9 && !isChampions && !this.curTeam.format.includes('soupstore')) {
 					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.requiredTeraType || species.types[0]) + '</span>';
 				}
 			}
@@ -1625,7 +1627,8 @@
 			if (this.curTeam.format.includes('bdsp')) {
 				this.curTeam.dex = Dex.mod('gen8bdsp');
 			}
-			if (this.curTeam.format.includes('champions')) {
+			// Soup Store: Champions data, but mainline EVs/IVs/levels (see soupstore/README.md)
+			if (this.curTeam.format.includes('champions') || this.curTeam.format.includes('soupstore')) {
 				this.curTeam.dex = Dex.mod('champions');
 			}
 			this.save();
@@ -1900,7 +1903,7 @@
 			curSet.name = this.curSet.name || undefined;
 
 			// never preserve current set tera, even if smogon set used default
-			if (this.curSet.gen === 9 && !this.curTeam.format.includes('champions')) {
+			if (this.curSet.gen === 9 && !this.curTeam.format.includes('champions') && !this.curTeam.format.includes('soupstore')) {
 				curSet.teraType = sampleSet.teraType || species.requiredTeraType || species.types[0];
 			}
 
@@ -2974,7 +2977,7 @@
 				buf += '</select></div></div>';
 			}
 
-			if (this.curTeam.gen === 9 && !isChampions) {
+			if (this.curTeam.gen === 9 && !isChampions && !this.curTeam.format.includes('soupstore')) {
 				buf += '<div class="formrow"><label class="formlabel" title="Tera Type">Tera Type:</label><div>';
 				buf += '<select name="teratype" class="button">';
 				var types = Dex.types.all();
@@ -3062,7 +3065,7 @@
 
 			// Tera type
 			var teraType = this.$chart.find('select[name=teratype]').val();
-			if (!isChampions && Dex.types.isName(teraType)) {
+			if (!isChampions && !this.curTeam.format.includes('soupstore') && Dex.types.isName(teraType)) {
 				set.teraType = teraType || species.requiredTeraType || species.types[0];
 			} else {
 				delete set.teraType;
@@ -3093,7 +3096,7 @@
 						buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
 					}
 				}
-				if (this.curTeam.gen === 9 && !isChampions) {
+				if (this.curTeam.gen === 9 && !isChampions && !this.curTeam.format.includes('soupstore')) {
 					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.requiredTeraType || species.types[0]) + '</span>';
 				}
 			}

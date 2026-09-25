@@ -738,6 +738,11 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			format = format.slice(7) as ID;
 			if (!format) format = 'ou' as ID;
 		}
+		// Soup Store: Champions + National Dex data, learnsets and bans (see soupstore/README.md)
+		if (format.startsWith('soupstore')) {
+			this.formatType = 'natdexchampions';
+			this.dex = Dex.mod('champions' as ID);
+		}
 		if (format.includes('champions')) {
 			this.formatType = 'champions';
 			this.dex = Dex.mod('champions' as ID);
@@ -1280,7 +1285,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			'tiershift', 'linked', '4v4doublesuu', 'pokebilitiesaaa',
 		];
 		if (dex.gen >= 6) {
-			if (customBanlists.includes(format) && table.metagameBans?.[format]) {
+			if ((customBanlists.includes(format) || format.startsWith('soupstore')) && table.metagameBans?.[format]) {
 				tierSet = tierSet.filter(([type, id]) => {
 					if (id in table.metagameBans[format]) return false;
 					if (!this.formatType && dex.gen === 9 &&

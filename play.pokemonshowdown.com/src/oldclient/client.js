@@ -9,6 +9,18 @@ function toId() {
 	Config.sockjsprefix = '/showdown';
 	Config.root = '/';
 
+	// Soup Store: this client is self-hosted, so login requests go straight to the
+	// PS login server (Config.loginServerHost), which allows cross-origin requests.
+	// PS's session cookie is third-party here, so send a placeholder session id,
+	// which the login server treats as "no session". See soupstore/README.md.
+	if (Config.loginServerHost) {
+		$.ajaxPrefilter(function (options) {
+			if (options.url && options.url.indexOf('https://' + Config.loginServerHost + '/') === 0) {
+				options.data = (options.data ? options.data + '&' : '') + 'sid=a';
+			}
+		});
+	}
+
 	if (window.nodewebkit) {
 		window.gui = require('nw.gui');
 		window.nwWindow = gui.Window.get();
@@ -218,7 +230,9 @@ function toId() {
 		 */
 		getActionPHP: function () {
 			var ret = '/~~' + Config.server.id + '/action.php';
-			if (Config.testclient) {
+			if (Config.loginServerHost) {
+				ret = 'https://' + Config.loginServerHost + ret;
+			} else if (Config.testclient) {
 				ret = 'https://' + Config.routes.client + ret;
 			}
 			return (this.getActionPHP = function () {
