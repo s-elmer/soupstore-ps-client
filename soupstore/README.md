@@ -25,6 +25,8 @@ All Soup Store-specific code is either in this `soupstore/` folder or marked wit
 |---|---|
 | `src/oldclient/client.js` | `Config.loginServerHost`: login requests go straight to PS's login server (which allows cross-origin requests) with a placeholder session id, since PS's session cookie is third-party on our domain |
 | `src/oldclient/client-topbar.js` | Login popup notes that the password goes directly to PS's login server |
+| `src/oldclient/client-mainmenu.js` | `Config.newsURL`: the News box loads posts live from our replay site's `/api/news` (Markdown posts plus `/news` chat posts), with the same unread tracking as upstream |
+| `src/oldclient/client.js` | `Config.title` names the site in browser tabs |
 | `src/battle-dex-search.ts` | Soup Store formats (`gen9soupstore*`) search the Champions + National Dex tables and apply that format's banlist |
 | `build-tools/build-indexes` | Generates each Soup Store format's species bans from the server's rule table |
 | `src/oldclient/client-teambuilder.js` | Soup Store teams use Champions data for species and moves, but keep the mainline EV/IV editor and Level 100; Tera is hidden (banned) |
@@ -33,6 +35,13 @@ All Soup Store-specific code is either in this `soupstore/` folder or marked wit
 Why: the format uses Pokémon Champions mechanics with National Dex Pokémon and learnsets, but mainline Level 100 EVs/IVs. The upstream client picks all of this from the format name, and a name containing "Champions" would force Champions' Level 50 and Stat Points editor.
 
 Soup Store config (`config/`, not tracked upstream) lives in `soupstore/config/` and is copied in by the build.
+
+Branding is applied to the **build output** by `soupstore/brand.mjs`, so upstream files stay untouched:
+- The logo, favicons and manifest are replaced with the files from the server repo's `brand/` folder.
+- The page title, header logo alt text, news placeholder and main-menu footer are rewritten.
+- `soupstore/soupstore.css` (green header, news styling) is added after the upstream styles.
+
+If upstream changes the markup, `brand.mjs` fails loudly instead of silently skipping a step.
 
 ## Building
 

@@ -14,7 +14,7 @@
 		Referrer-Policy "strict-origin-when-cross-origin"
 		# Scripts only from this site (the client uses inline scripts and eval).
 		# connect-src: the game server and PS's login server (password logins go there directly).
-		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' https://play.pokemonshowdown.com; font-src 'self'; connect-src 'self' https://play.pokemonshowdown.com {$CSP_SERVER_SOURCES:https://showdown.soupstore.dev wss://showdown.soupstore.dev}; frame-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://play.pokemonshowdown.com"
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' https://play.pokemonshowdown.com; font-src 'self'; connect-src 'self' https://play.pokemonshowdown.com {$CSP_SERVER_SOURCES:https://showdown.soupstore.dev wss://showdown.soupstore.dev} {$CSP_NEWS_SOURCE:https://replay.soupstore.dev}; frame-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://play.pokemonshowdown.com"
 	}
 
 	# Sprites and sounds aren't in the client repo; PS hosts them.

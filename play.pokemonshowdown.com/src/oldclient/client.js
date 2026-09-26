@@ -2093,7 +2093,9 @@ function toId() {
 			if (room.id === this.fragment) this.updateTitle(room);
 		},
 		updateTitle: function (room) {
-			document.title = room.title ? room.title + " - Showdown!" : "Showdown!";
+			// Soup Store: Config.title names the site in browser tabs
+			var siteTitle = Config.title || "Showdown!";
+			document.title = room.title ? room.title + " - " + siteTitle : siteTitle;
 		},
 		updateAutojoin: function () {
 			if (!Config.server.registered) return;

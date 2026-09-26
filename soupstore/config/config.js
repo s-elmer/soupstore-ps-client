@@ -6,6 +6,9 @@ var Config = Config || {};
 
 Config.bannedHosts = [];
 
+// Shown in browser tabs, e.g. "Lobby - Soup Store Showdown"
+Config.title = 'Soup Store Showdown';
+
 // Links to these domains open without a "this link leads outside" warning in chat.
 Config.whitelist = [
 	'soupstore.dev',
@@ -23,6 +26,9 @@ Config.defaultserver = {
 	altport: 80,
 	registered: false,
 };
+
+// News box content: our replay site's API (Markdown posts + /news chat command posts).
+Config.newsURL = 'https://replay.soupstore.dev/api/news';
 
 // Logins go straight to PS's login server so everyone uses their existing PS
 // account (see play.pokemonshowdown.com/src/oldclient/client.js).

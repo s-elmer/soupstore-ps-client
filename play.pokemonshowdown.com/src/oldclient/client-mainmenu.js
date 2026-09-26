@@ -87,7 +87,9 @@
 			// (created during page load)
 
 			var self = this;
-			Storage.whenPrefsLoaded(function () {
+			// Soup Store: news comes live from our API instead (see soupstore/README.md)
+			if (Config.newsURL) this.loadLiveNews();
+			else Storage.whenPrefsLoaded(function () {
 				var newsid = Number(Storage.prefs('newsid'));
 				var $news = this.$('.news-embed');
 				if (!newsid) {
@@ -139,6 +141,58 @@
 		},
 
 		// news
+
+		/**
+		 * Soup Store: fills the News box from Config.newsURL (our replay site's
+		 * /api/news), so posts made with the /news chat command show up without
+		 * a client rebuild. Unread tracking works like the built-in news box.
+		 */
+		loadLiveNews: function () {
+			var self = this;
+			var $news = this.$('.news-embed');
+			if (!$news.length) return;
+			var $log = $news.find('.pm-log');
+			$.ajax({
+				url: Config.newsURL,
+				dataType: 'json',
+				success: function (posts) {
+					if (!posts || !posts.length) {
+						$log.html('<p><em>No news yet.</em></p>');
+						return;
+					}
+					var html = '';
+					for (var i = 0; i < posts.length && i < 5; i++) {
+						var post = posts[i];
+						html += '<div class="newsentry" data-newsid="' + Number(post.id) + '">';
+						html += '<h4>' + BattleLog.escapeHTML(post.title) + '</h4>';
+						html += BattleLog.sanitizeHTML(post.html);
+						html += '<p>&mdash;<strong>' + BattleLog.escapeHTML(post.author) + '</strong> ';
+						html += '<small class="date">on ' + new Date(post.date * 1000).toDateString() + '</small></p>';
+						html += '</div>';
+					}
+					$log.html(html);
+					var newestId = Number(posts[0].id);
+					$news.attr('data-newsid', newestId).data('newsid', newestId);
+					Storage.whenPrefsLoaded(function () {
+						var readId = Number(Storage.prefs('newsid')) || 0;
+						var hasUnread = false;
+						$news.find('.newsentry').each(function () {
+							if (readId && Number($(this).data('newsid')) > readId) {
+								hasUnread = true;
+								$(this).addClass('unread');
+							}
+						});
+						// Same as the built-in box: only returning visitors see "new"
+						// badges; stay open for unread news, start minimized on phones
+						// for first-time visitors
+						if (readId ? !hasUnread : $(window).width() < 628) self.minimizePM($news);
+					});
+				},
+				error: function () {
+					$log.html('<p><em>News is unavailable right now.</em></p>');
+				}
+			});
+		},
 
 		addNews: function () {
 			var self = this;

@@ -73,6 +73,9 @@ find "$out" \( -name '*.php' -o -name 'testclient-*.html' -o -name 'index-new.ht
 # Drop the tag for clean-cookies.php (PHP isn't served)
 sed -i.bak '/clean-cookies\.php/d' "$out/caches/index-old.html" && rm -f "$out/caches/index-old.html.bak"
 
+# Soup Store logo, icons, colors and footer (brand assets live in the server repo)
+node soupstore/brand.mjs "$server/brand" "$out"
+
 # Sprite dimension data is generated from the sprite images, which live on PS's
 # servers (and are loaded from there), so use PS's copy.
 OUT="$out" node -e '

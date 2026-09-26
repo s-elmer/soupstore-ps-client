@@ -1,0 +1,37 @@
+/* Soup Store branding for the client. Loaded after the upstream styles (see soupstore/brand.mjs). */
+.header {
+	background: linear-gradient(180deg, #6a9285 0%, #5c8477 100%);
+}
+.dark .header {
+	background: linear-gradient(180deg, #3f5f55 0%, #34503f 100%);
+}
+.header .logo {
+	margin: 3px 0 0 6px;
+}
+/* Keep the name and buttons in the top bar readable on green */
+.userbar .username,
+.userbar .usernametext {
+	text-shadow: 0 0 3px #fff, 0 0 3px #fff;
+}
+.dark .userbar .username,
+.dark .userbar .usernametext {
+	text-shadow: 0 0 3px #000, 0 0 3px #000;
+}
+/* News */
+.news-embed h3 {
+	background: #5c8477;
+	color: #fff;
+}
+.news-embed .newsentry.unread h4::after {
+	content: "new";
+	margin-left: 6px;
+	padding: 0 5px;
+	border-radius: 4px;
+	background: #8eb9a4;
+	color: #1b2a25;
+	font-size: 8pt;
+	vertical-align: middle;
+}
+.mainmenufooter a {
+	color: inherit;
+}
