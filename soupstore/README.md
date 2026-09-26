@@ -59,6 +59,8 @@ As a container (what production runs):
 docker build -f soupstore/Dockerfile --build-context server=../soupstore-ps-server -t soupstore-client .
 ```
 
+Production images are built by the server repo's GitHub Actions workflow, which checks out this repo's `soupstore` branch. Pushing to `soupstore` here starts that workflow (`.github/workflows/soupstore-deploy.yml`, if the `SERVER_DEPLOY_TOKEN` secret is set), so client changes deploy automatically.
+
 The image serves the built client with Caddy on port 8080, behind the main Caddy in the server repo's `deploy/` stack. The client only uses its configured game server when served over HTTPS from exactly `Config.routes.client`, so a meaningful end-to-end test needs the real domain. `SOUPSTORE_CLIENT_HOST`, `SOUPSTORE_SERVER` and `SOUPSTORE_REPLAYS_HOST` (environment variables for `build.sh`, build args for the Dockerfile) override the hostnames for staging setups.
 
 Sprites and sounds aren't part of this repository; the client loads them from `play.pokemonshowdown.com`, and the build downloads PS's sprite-size data (`data/pokedex-mini*.js`) to match.

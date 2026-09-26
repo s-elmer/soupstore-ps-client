@@ -1,0 +1,12 @@
+# Dependency updates for the Soup Store parts of this repo (soupstore/ and our
+# workflow). Upstream's own npm dependencies are left to upstream merges.
+version: 2
+updates:
+  - package-ecosystem: docker
+    directory: /soupstore
+    target-branch: soupstore
+    schedule: { interval: weekly, day: monday, time: "06:00", timezone: America/Chicago }
+    ignore:
+      # Stay on Node's LTS line
+      - dependency-name: node
+        update-types: [version-update:semver-major]

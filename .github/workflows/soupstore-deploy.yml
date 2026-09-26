@@ -1,0 +1,26 @@
+# Soup Store: after a push to soupstore, ask the server repo's CI to rebuild the
+# client image from this commit and deploy it (s-elmer/soupstore-ps-server,
+# .github/workflows/deploy.yml). Needs the SERVER_DEPLOY_TOKEN secret: a
+# fine-grained token for s-elmer/soupstore-ps-server only, with
+# "Actions: Read and write". Without it, run that workflow by hand instead.
+name: Soup Store deploy
+
+on:
+  push:
+    branches: [soupstore]
+
+permissions: {}
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start the server repo's deploy workflow
+        env:
+          GH_TOKEN: ${{ secrets.SERVER_DEPLOY_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::notice::SERVER_DEPLOY_TOKEN isn't set; run the Soup Store workflow in s-elmer/soupstore-ps-server by hand to deploy this commit."
+            exit 0
+          fi
+          gh workflow run deploy.yml --repo s-elmer/soupstore-ps-server --ref soupstore -f client_ref="$GITHUB_SHA"
