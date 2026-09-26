@@ -21,6 +21,11 @@
 	@psassets path /sprites/* /audio/*
 	redir @psassets https://play.pokemonshowdown.com{uri} 302
 
+	# The replay site's player runs our js/replay-embed.js, which loads this site's
+	# scripts and styles; browsers only use cross-origin fonts with CORS.
+	@fonts path /style/fonts/* /style/font/*
+	header @fonts Access-Control-Allow-Origin "https://{$REPLAYS_HOST:replay.soupstore.dev}"
+
 	# Replay shortlinks
 	redir /r https://{$REPLAYS_HOST:replay.soupstore.dev}/ 302
 	@replaylink path_regexp replaylink ^/r/([a-z0-9-]+)$

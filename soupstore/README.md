@@ -27,8 +27,8 @@ All Soup Store-specific code is either in this `soupstore/` folder or marked wit
 | `src/oldclient/client-topbar.js` | Login popup notes that the password goes directly to PS's login server |
 | `src/oldclient/client-mainmenu.js` | `Config.newsURL`: the News box loads posts live from our replay site's `/api/news` (Markdown posts plus `/news` chat posts), with the same unread tracking as upstream |
 | `src/oldclient/client.js` | `Config.title` names the site in browser tabs |
-| `src/battle-dex-search.ts` | Soup Store formats (`gen9soupstore*`) search the Champions + National Dex tables and apply that format's banlist |
-| `build-tools/build-indexes` | Generates each Soup Store format's species bans from the server's rule table |
+| `src/battle-dex-search.ts` | Soup Store formats (`gen9soupstore*`) search the Champions + National Dex tables and apply that format's banlist; banned moves aren't listed as learnable (they appear under "Illegal results") |
+| `build-tools/build-indexes` | Generates each Soup Store format's species and move bans from the server's rule table |
 | `src/oldclient/client-teambuilder.js` | Soup Store teams use Champions data for species and moves, but keep the mainline EV/IV editor and Level 100; Tera is hidden (banned) |
 | `src/battle.ts`, `src/battle-tooltips.ts`, `src/battle-dex.ts` | Soup Store battles use Champions move data, PP and mechanics |
 
@@ -43,6 +43,8 @@ Branding is applied to the **build output** by `soupstore/brand.mjs`, so upstrea
 
 If upstream changes the markup, `brand.mjs` fails loudly instead of silently skipping a step.
 
+The build also produces `js/replay-embed.js`, which our replay site uses as its replay player so replays get the same Soup Store handling (Champions move data). `soupstore/Caddyfile` allows the replay site to load this site's fonts (CORS).
+
 ## Building
 
 The teambuilder data is generated from **our server repo**, so it includes our formats and bans. Check both repos out side by side, then:
@@ -52,6 +54,8 @@ The teambuilder data is generated from **our server repo**, so it includes our f
 npm ci
 soupstore/build.sh ../soupstore-ps-server    # output: soupstore/dist/
 ```
+
+`npm test` afterwards includes `test/full/soupstore.test.js` (move bans and Champions move text for our formats).
 
 As a container (what production runs):
 

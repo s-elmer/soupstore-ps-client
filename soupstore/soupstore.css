@@ -8,6 +8,11 @@
 .header .logo {
 	margin: 3px 0 0 6px;
 }
+/* Upstream's 144px fits its logo at a 2px margin; ours ends at 152px (6 + 146), plus a gap.
+   (Narrow windows use .minitabbar, which upstream resets to 0.) */
+.tabbar.maintabbar {
+	margin-left: 162px;
+}
 /* Keep the name and buttons in the top bar readable on green */
 .userbar .username,
 .userbar .usernametext {

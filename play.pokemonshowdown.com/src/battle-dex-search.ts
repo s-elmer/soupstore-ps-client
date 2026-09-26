@@ -2026,6 +2026,14 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 			}
 		}
 
+		// Soup Store: banned moves aren't learnable (they show up under "Illegal results")
+		const moveBans = format.startsWith('soupstore') ?
+			BattleTeambuilderTable['natdexchampions']?.metagameMoveBans?.[format] : null;
+		if (moveBans) {
+			moves = moves.filter(id => !(id in moveBans));
+			sketchMoves = sketchMoves.filter(id => !(id in moveBans));
+		}
+
 		moves.sort();
 		sketchMoves.sort();
 

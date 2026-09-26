@@ -570,6 +570,27 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable['natdexchampions'].metagameBans = metagameBans;
 			BattleTeambuilderTable['natdexchampions'].overrideTier = overrideTier;
 			BattleTeambuilderTable['natdexchampions'].formatSlices = formatSlices;
+			// Soup Store: each format's banned moves, keyed like metagameBans. Includes
+			// banlist entries, clause bans (e.g. Evasion Moves Clause), OHKO Clause, and
+			// every Hidden Power type when Hidden Power is banned. See soupstore/README.md.
+			const metagameMoveBans = {};
+			for (const format of Dex.formats.all()) {
+				if (!format.id.includes('soupstore') || format.effectType !== 'Format') continue;
+				const ruleTable = Dex.formats.getRuleTable(format);
+				const formatDex = Dex.forFormat(format);
+				const bans = {};
+				for (const id in Dex.data.Moves) {
+					const move = formatDex.moves.get(id);
+					if (!move.exists) continue;
+					if (ruleTable.isBanned('move:' + id) ||
+						(id.startsWith('hiddenpower') && ruleTable.isBanned('move:hiddenpower')) ||
+						(move.ohko && ruleTable.has('ohkoclause'))) {
+						bans[id] = 1;
+					}
+				}
+				metagameMoveBans[format.id.replace(/^gen\d+/, '')] = bans;
+			}
+			BattleTeambuilderTable['natdexchampions'].metagameMoveBans = metagameMoveBans;
 		} else if (isVGC) {
 			BattleTeambuilderTable[gen + 'vgc'] = {};
 			BattleTeambuilderTable[gen + 'vgc'].tiers = tiers;
