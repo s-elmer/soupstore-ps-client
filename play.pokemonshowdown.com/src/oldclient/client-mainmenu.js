@@ -1107,7 +1107,7 @@
 			}
 			if (!noChoice) {
 				this.curFormat = formatid;
-				// Soup Store: start with our format while other formats are hidden
+				// Soup Store: start with our format
 				if (!this.curFormat) this.curFormat = SoupStore.defaultFormat(selectType || 'challenge');
 				if (!this.curFormat) {
 					if (BattleFormats['gen9randombattle']) {

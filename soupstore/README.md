@@ -32,7 +32,7 @@ All Soup Store-specific code is either in this `soupstore/` folder or marked wit
 | `src/oldclient/client-teambuilder.js` | Soup Store teams use Champions data for species and moves, but keep the mainline EV/IV editor and Level 100; Tera is hidden (banned) |
 | `src/battle.ts`, `src/battle-tooltips.ts`, `src/battle-dex.ts` | Soup Store battles use Champions move data, PP and mechanics |
 | `src/oldclient/soupstore.js` (new), `src/oldclient/client-teambuilder.js` | **Import from Champions** button in the teambuilder's Import/Export view: converts a pasted Champions team (e.g. `[Gen 9 Champions] NatDex Draft`) to Soup Store Season 4. Stat Points become the equivalent EVs (first point 4 EVs, then 8 each, so stats match exactly), Level 50 becomes 100, IVs and Tera are cleared. Spreads over 510 EVs lose the excess from their smallest invested stat, with a warning |
-| `src/oldclient/client-mainmenu.js`, `src/oldclient/client-topbar.js`, `src/oldclient/client-teambuilder.js` | Format lists only show Soup Store formats, and challenges and new teams start in ours, unless **Show all formats** is on in Options (`allformats` pref) |
+| `src/oldclient/client-mainmenu.js`, `src/oldclient/client-topbar.js`, `src/oldclient/client-teambuilder.js` | Format lists only show Soup Store formats unless **Show all formats** is on in Options (`allformats` pref). The home Battle! box, challenges and new teams start in ours either way |
 | `index-old.html`, `testclient-old.html` | Load `soupstore.js` |
 
 Why: the format uses Pokémon Champions mechanics with National Dex Pokémon and learnsets, but mainline Level 100 EVs/IVs. The upstream client picks all of this from the format name, and a name containing "Champions" would force Champions' Level 50 and Stat Points editor.

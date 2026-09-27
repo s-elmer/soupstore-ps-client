@@ -4,8 +4,8 @@
  * - Converting teams built for Champions formats (e.g. [Gen 9 Champions] NatDex
  *   Draft) into Soup Store teams: Stat Points become the equivalent EVs, and
  *   Level 50 becomes Level 100.
- * - Hiding formats other than ours unless the "Show all formats" option is on,
- *   and defaulting to ours.
+ * - Hiding formats other than ours unless the "Show all formats" option is on.
+ * - Defaulting new searches, challenges and teams to our format.
  */
 (function (exports) {
 	var STATS = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
@@ -30,12 +30,12 @@
 		},
 
 		/**
-		 * While other formats are hidden, the format that new challenges, searches
-		 * or teams should start with: our first one that fits (selectType is
-		 * 'search', 'challenge' or 'teambuilder', as in FormatPopup). '' if none.
+		 * The format that new searches, challenges or teams start with, even when
+		 * all formats are shown: our first one that fits (selectType is 'search',
+		 * 'challenge' or 'teambuilder', as in FormatPopup). '' if none.
 		 */
 		defaultFormat: function (selectType) {
-			if (Storage.prefs('allformats') || !window.BattleFormats) return '';
+			if (!window.BattleFormats) return '';
 			for (var id in BattleFormats) {
 				var format = BattleFormats[id];
 				if (!SoupStore.isSoupStoreFormat(id)) continue;

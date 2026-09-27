@@ -860,7 +860,7 @@
 					iconCache: ''
 				};
 			} else {
-				// Soup Store: new teams start in our format while other formats are hidden
+				// Soup Store: new teams start in our format
 				var format = this.curFolder || SoupStore.defaultFormat('teambuilder') || 'gen9';
 				var folder = '';
 				if (format && format.charAt(format.length - 1) === '/') {

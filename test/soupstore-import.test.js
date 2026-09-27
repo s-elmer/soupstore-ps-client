@@ -84,20 +84,26 @@ describe('SoupStore format filtering', () => {
 	const formats = {
 		gen9randombattle: {effectType: 'Format', searchShow: true, challengeShow: true, isTeambuilderFormat: false},
 		gen9ou: {effectType: 'Format', searchShow: true, challengeShow: true, isTeambuilderFormat: true},
-		gen9soupstoreseason4: {effectType: 'Format', searchShow: false, challengeShow: true, isTeambuilderFormat: true},
+		gen9soupstoreseason4: {effectType: 'Format', searchShow: true, challengeShow: true, isTeambuilderFormat: true},
 	};
 
-	it('hides other formats and defaults to ours, unless all formats are shown', () => {
-		let SoupStore = load({}, formats);
-		assert.equal(SoupStore.isFormatHidden('gen9ou'), true);
-		assert.equal(SoupStore.isFormatHidden('gen9soupstoreseason4'), false);
-		assert.equal(SoupStore.defaultFormat('challenge'), 'gen9soupstoreseason4');
-		assert.equal(SoupStore.defaultFormat('teambuilder'), 'gen9soupstoreseason4');
-		// Season 4 isn't searchable, so searches keep PS's default
-		assert.equal(SoupStore.defaultFormat('search'), '');
+	it('hides other formats unless all formats are shown', () => {
+		assert.equal(load({}, formats).isFormatHidden('gen9ou'), true);
+		assert.equal(load({}, formats).isFormatHidden('gen9soupstoreseason4'), false);
+		assert.equal(load({allformats: true}, formats).isFormatHidden('gen9ou'), false);
+	});
 
-		SoupStore = load({allformats: true}, formats);
-		assert.equal(SoupStore.isFormatHidden('gen9ou'), false);
-		assert.equal(SoupStore.defaultFormat('challenge'), '');
+	it('defaults searches, challenges and new teams to our format', () => {
+		for (const prefs of [{}, {allformats: true}]) {
+			const SoupStore = load(prefs, formats);
+			for (const selectType of ['search', 'challenge', 'teambuilder']) {
+				assert.equal(SoupStore.defaultFormat(selectType), 'gen9soupstoreseason4', selectType);
+			}
+		}
+		// If ours can't be searched for, searches keep PS's default
+		const challengeOnly = {...formats, gen9soupstoreseason4: {...formats.gen9soupstoreseason4, searchShow: false}};
+		assert.equal(load({}, challengeOnly).defaultFormat('search'), '');
+		assert.equal(load({}, challengeOnly).defaultFormat('challenge'), 'gen9soupstoreseason4');
+		assert.equal(load({}, undefined).defaultFormat('search'), '');
 	});
 });
