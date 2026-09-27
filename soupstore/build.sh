@@ -32,9 +32,11 @@ mkdir -p config
 cp soupstore/config/config.js soupstore/config/colors.json soupstore/config/coil.json config/
 cp soupstore/config/routes.json config/routes.json
 
-# Optional overrides, e.g. for a local test build:
-#   SOUPSTORE_CLIENT_HOST=localhost:8081 SOUPSTORE_SERVER=localhost:8000 \
+# Optional overrides, e.g. for a local test build over plain HTTP:
+#   SOUPSTORE_LOCAL=1 SOUPSTORE_CLIENT_HOST=localhost:8081 SOUPSTORE_SERVER=localhost:8000 \
 #   SOUPSTORE_REPLAYS_HOST=localhost:8080 soupstore/build.sh ../soupstore-ps-server
+# SOUPSTORE_LOCAL turns on PS's test-client mode: the client normally only uses its
+# configured server when served over HTTPS from Config.routes.client.
 node - <<'NODE'
 const fs = require('fs');
 const env = process.env;
@@ -51,6 +53,17 @@ if (env.SOUPSTORE_SERVER) {
 		.replace(/\bport: \d+/, `port: ${Number(port)}`)
 		.replace(/httpport: \d+/, `httpport: ${Number(port)}`);
 	fs.writeFileSync('config/config.js', config);
+}
+if (env.SOUPSTORE_LOCAL) {
+	const replays = env.SOUPSTORE_REPLAYS_HOST || 'localhost:8080';
+	fs.appendFileSync('config/config.js', `
+// Local test build (SOUPSTORE_LOCAL): never deploy this
+Config.testclient = true;
+// Test-client mode proxies login requests through manual popups unless a key is set;
+// our logins already go straight to PS's login server with this placeholder session id.
+var POKEMON_SHOWDOWN_TESTCLIENT_KEY = 'a';
+Config.newsURL = 'http://${replays}/api/news';
+`);
 }
 NODE
 

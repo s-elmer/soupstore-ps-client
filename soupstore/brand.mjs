@@ -37,6 +37,11 @@ const replace = (pattern, value, label) => {
 const version = Date.now().toString(36);
 replace(/<title>[^<]*<\/title>/, '<title>Soup Store Showdown</title>', 'the <title>');
 replace(/alt="Pok&eacute;mon Showdown! \(beta\)"/, 'alt="Soup Store"', 'the logo alt text');
+// Upstream's build moves the logo's src to our host but not its high-DPI srcset,
+// which would show PS's logo on Retina screens. Load our @2x from the same host.
+replace(/srcset="[^"]*\/pokemonshowdownbeta@2x\.png 2x"/,
+	`srcset="${/src="([^"]*)\/pokemonshowdownbeta\.png"/.exec(html)?.[1] ?? ''}/pokemonshowdownbeta@2x.png 2x"`,
+	'the logo srcset');
 replace(/(<link rel="stylesheet" href="[^"]*font-awesome\.css[^"]*"[^>]*>)/, `$1\n<link rel="stylesheet" href="/soupstore/soupstore.css?v=${version}" />`, 'the font-awesome stylesheet link');
 replace(/\[failed to retrieve news\]/, '<p><em>Loading news&hellip;</em></p>', 'the news placeholder');
 replace(/<div class="mainmenufooter">[\s\S]*?<\/small>\s*<\/div>/, `<div class="mainmenufooter">

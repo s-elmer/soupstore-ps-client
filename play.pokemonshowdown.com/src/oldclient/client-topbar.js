@@ -461,6 +461,7 @@
 			'change input[name=nogif]': 'setNogif',
 			'change input[name=bwgfx]': 'setBwgfx',
 			'change input[name=nopastgens]': 'setNopastgens',
+			'change input[name=allformats]': 'setAllformats',
 			'change select[name=tournaments]': 'setTournaments',
 			'change select[name=language]': 'setLanguage',
 			'change input[name=blockchallenges]': 'setBlockchallenges',
@@ -523,6 +524,11 @@
 			}
 			buf += '<p><label class="checkbox"><input type="checkbox" name="bwgfx"' + (Dex.prefs('bwgfx') ? ' checked' : '') + ' /> Use 2D sprites instead of 3D models</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="nopastgens"' + (Dex.prefs('nopastgens') ? ' checked' : '') + ' /> Use modern sprites for past generations</label></p>';
+
+			// Soup Store: format lists only show our formats unless this is on
+			buf += '<hr />';
+			buf += '<p><strong>Formats</strong></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="allformats"' + (Dex.prefs('allformats') ? ' checked' : '') + ' /> Show all formats (not just Soup Store)</label></p>';
 
 			buf += '<hr />';
 			buf += '<p><strong>Chat</strong></p>';
@@ -626,6 +632,10 @@
 		setNopastgens: function (e) {
 			var nopastgens = !!e.currentTarget.checked;
 			Storage.prefs('nopastgens', nopastgens);
+		},
+		setAllformats: function (e) {
+			var allformats = !!e.currentTarget.checked;
+			Storage.prefs('allformats', allformats);
 		},
 		setTournaments: function (e) {
 			var tournaments = e.currentTarget.value;

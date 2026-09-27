@@ -40,3 +40,7 @@
 .mainmenufooter a {
 	color: inherit;
 }
+/* Teambuilder Import/Export: room for the "Import from Champions" row */
+.teamedit.soupstore-teamedit {
+	top: 56px;
+}
