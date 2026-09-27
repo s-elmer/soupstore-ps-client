@@ -1256,6 +1256,8 @@
 					buf += '<li><button name="addPokemon" class="button big"><i class="fa fa-plus"></i> Add Pok&eacute;mon</button></li>';
 				}
 				buf += '</ol>';
+				// Soup Store: team type matchups (see soupstore-matchups.ts)
+				buf += SoupStoreMatchups.renderTeamSummary(this.curSetList, this.curTeam.dex, this.matchupsPref().summary);
 				var formatInfo = this.formatResources[this.curTeam.format];
 				// data's there and loaded
 				if (formatInfo && formatInfo !== true) {
@@ -1428,8 +1430,28 @@
 			}
 			buf += '</button></div></div>';
 
-			buf += '</div></li>';
+			buf += '</div>';
+			// Soup Store: type matchups under each card in the team view (see soupstore-matchups.ts)
+			if (!this.curSet) buf += SoupStoreMatchups.renderCardStrip(set, this.curTeam.dex, this.matchupsPref().cards);
+			buf += '</li>';
 			return buf;
+		},
+		matchupsPref: function () {
+			var pref = Storage.prefs('soupstorematchups') || {};
+			return { cards: !!pref.cards, summary: pref.summary !== false };
+		},
+		toggleMatchups: function (which, button) {
+			var pref = this.matchupsPref();
+			pref[which] = !pref[which];
+			Storage.prefs('soupstorematchups', pref);
+			// Card strips open and close together, without a re-render. Strips above the
+			// clicked one change height, so scroll to keep the clicked one where it was.
+			var scroller = this.$('.teamchartbox')[0];
+			var top = button && button.getBoundingClientRect().top;
+			var $boxes = which === 'summary' ? this.$('.ss-team-matchups') : this.$('.ss-matchups').not('.ss-team-matchups');
+			$boxes.toggleClass('ss-open', pref[which]);
+			$boxes.children('.ss-matchups-toggle').find('i').attr('class', 'fa fa-caret-' + (pref[which] ? 'down' : 'right'));
+			if (scroller && button) scroller.scrollTop += button.getBoundingClientRect().top - top;
 		},
 
 		saveImport: function (fromChampions) {
