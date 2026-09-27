@@ -39,6 +39,14 @@ export interface Matchup {
 	notes: string[];
 	/** Offense only: the best move against this type */
 	move?: string;
+	/** Offense only: every damaging move against this type, best first */
+	moves?: MoveMatchup[];
+}
+
+export interface MoveMatchup {
+	name: string;
+	mult: number;
+	notes: string[];
 }
 
 export interface SetMatchups {
@@ -56,7 +64,7 @@ export interface TypeSummary {
 	weak: string[];
 	resist: string[];
 	immune: string[];
-	/** + means the team is weak to this type */
+	/** + means the team handles this type well */
 	defenseDelta: number;
 	superEffective: string[];
 	resisted: string[];
@@ -246,14 +254,16 @@ export const SoupStoreMatchups = new class {
 
 		const result: Record<string, Matchup> = {};
 		for (const defenseType of this.types(dex)) {
-			let best: Matchup | null = null;
+			const all: MoveMatchup[] = [];
 			for (const move of moves) {
 				const { type, note: typeNote } = this.moveType(move, set, dex);
 				const { mult, note } = this.moveEffectiveness(move, type, defenseType, ability, dex);
-				if (best && mult <= best.mult) continue;
-				best = { mult, notes: [typeNote, note].filter(Boolean), move: move.name };
+				all.push({ name: move.name, mult, notes: [typeNote, note].filter(Boolean) });
 			}
-			result[defenseType] = best!;
+			// Stable sort: ties keep the set's move order
+			all.sort((a, b) => b.mult - a.mult);
+			const best = all[0];
+			result[defenseType] = { mult: best.mult, notes: best.notes, move: best.name, moves: all };
 		}
 		return result;
 	}
@@ -279,9 +289,9 @@ export const SoupStoreMatchups = new class {
 		return mult < 1 ? -1 : 0;
 	}
 
-	/** + means the team is weak to the type */
+	/** + means the team handles the type well: resist +1, 4x resist or immune +2, weak -1, 4x weak -2 */
 	defenseWeight(mult: number) {
-		return this.multWeight(mult);
+		return -this.multWeight(mult) || 0;
 	}
 
 	/**
@@ -328,9 +338,16 @@ export const SoupStoreMatchups = new class {
 
 	/** A type icon, with its multiplier if it isn't the usual ×2 or ×½, and the details in a tooltip */
 	renderType(type: string, matchup: Matchup, verb: string) {
-		let title = `${type}: ${verb} ${this.formatMult(matchup.mult)}`;
-		if (matchup.move) title += ` with ${matchup.move}`;
-		if (matchup.notes.length) title += ` (${matchup.notes.join(', ')})`;
+		let title: string;
+		if (matchup.moves) {
+			// Offense: every damaging move, e.g. "Fire: Moonblast ×½, Flamethrower ×½"
+			title = `${type}: ` + matchup.moves.map(move =>
+				`${move.name} ${this.formatMult(move.mult)}` + (move.notes.length ? ` (${move.notes.join(', ')})` : '')
+			).join(', ');
+		} else {
+			title = `${type}: ${verb} ${this.formatMult(matchup.mult)}`;
+			if (matchup.notes.length) title += ` (${matchup.notes.join(', ')})`;
+		}
 		const showMult = ![2, 0.5, 0].includes(matchup.mult);
 		return `<span class="ss-type${matchup.notes.length ? ' ss-adjusted' : ''}" title="${BattleLog.escapeHTML(title)}">` +
 			Dex.getTypeIcon(type) +
@@ -397,12 +414,12 @@ export const SoupStoreMatchups = new class {
 		buf += `<div class="ss-matchups-body"><table class="ss-summary">`;
 		buf += `<tr><th rowspan="2">Type</th><th colspan="4">Defense (when attacked by the type)</th>`;
 		buf += `<th colspan="4">Offense (best move against the type)</th></tr>`;
-		buf += `<tr><th>Weak</th><th>Resist</th><th>Immune</th><th title="Per Pok&eacute;mon: 4&times; weak +2, 2&times; weak +1, resists &minus;1, 4&times; resists or immune &minus;2">&Delta;</th>`;
+		buf += `<tr><th>Weak</th><th>Resist</th><th>Immune</th><th title="Per Pok&eacute;mon: resists +1, 4&times; resists or immune +2, weak &minus;1, 4&times; weak &minus;2">&Delta;</th>`;
 		buf += `<th>Super eff.</th><th>Resisted</th><th>No effect</th><th title="Per Pok&eacute;mon's best move: super effective +1, resisted &minus;1, no effect &minus;2">&Delta;</th></tr>`;
 		for (const row of summary) {
 			buf += `<tr><td class="ss-typecell">${Dex.getTypeIcon(row.type)}</td>`;
 			buf += this.renderCount(row.weak, 'Weak') + this.renderCount(row.resist, 'Resists') +
-				this.renderCount(row.immune, 'Immune') + this.renderDelta(row.defenseDelta, false);
+				this.renderCount(row.immune, 'Immune') + this.renderDelta(row.defenseDelta, true);
 			buf += this.renderCount(row.superEffective, 'Super effective') + this.renderCount(row.resisted, 'Resisted') +
 				this.renderCount(row.noEffect, 'No effect') + this.renderDelta(row.offenseDelta, true);
 			buf += `</tr>`;

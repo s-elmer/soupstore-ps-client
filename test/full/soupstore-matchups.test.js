@@ -145,16 +145,17 @@ describe('Soup Store type matchups', () => {
 			{species: 'Clefable', ability: 'Magic Guard', moves: ['Calm Mind']},
 		];
 		const summary = Object.fromEntries(Matchups.teamSummary(team, dex).map(row => [row.type, row]));
-		// Ice: Garchomp 4x (+2), Corviknight 1/2 (-1), Rotom-Wash 1x, Clefable 1x
-		assert.equal(summary.Ice.defenseDelta, 1);
+		// Defense: + means the team handles the type well
+		// Ice: Garchomp 4x (-2), Corviknight 1/2 (+1), Rotom-Wash 1x, Clefable 1x
+		assert.equal(summary.Ice.defenseDelta, -1);
 		assert.deepEqual(summary.Ice.weak, ['Garchomp']);
-		// Bug: Garchomp 1x, Corviknight 1/4 (-2), Rotom-Wash 1x, Clefable 1/2 (-1)
-		assert.equal(summary.Bug.defenseDelta, -3);
+		// Bug: Garchomp 1x, Corviknight 1/4 (+2), Rotom-Wash 1x, Clefable 1/2 (+1)
+		assert.equal(summary.Bug.defenseDelta, 3);
 		assert.deepEqual(summary.Bug.resist, ['Corviknight', 'Clefable']);
-		// Steel: Garchomp 1x, Corviknight 1/2 (-1), Rotom-Wash 1/4 (-2), Clefable 2x (+1)
-		assert.equal(summary.Steel.defenseDelta, -2);
-		// Ground: Garchomp 1x, Corviknight immune (-2), Rotom-Wash Levitate (-2), Clefable 1x
-		assert.equal(summary.Ground.defenseDelta, -4);
+		// Steel: Garchomp 1x, Corviknight 1/2 (+1), Rotom-Wash 1/4 (+2), Clefable 2x (-1)
+		assert.equal(summary.Steel.defenseDelta, 2);
+		// Ground: Garchomp 1x, Corviknight immune (+2), Rotom-Wash Levitate (+2), Clefable 1x
+		assert.equal(summary.Ground.defenseDelta, 4);
 		assert.deepEqual(summary.Ground.immune, ['Corviknight', 'Rotom-Wash']);
 		// Offense against Steel: Garchomp EQ +1, Corviknight Brave Bird -1, Rotom Hydro Pump 0; Clefable has no attacks
 		assert.equal(summary.Steel.offenseDelta, 0);
@@ -164,11 +165,25 @@ describe('Soup Store type matchups', () => {
 	});
 
 	it('weights 4x the same in both directions', () => {
-		assert.deepEqual([4, 2, 1.5, 1, 0.5, 0.25, 0].map(mult => Matchups.defenseWeight(mult)), [2, 1, 1, 0, -1, -2, -2]);
+		assert.deepEqual([4, 2, 1.5, 1, 0.5, 0.25, 0].map(mult => Matchups.defenseWeight(mult)), [-2, -1, -1, 0, 1, 2, 2]);
 		assert.deepEqual([4, 2, 1.5, 1, 0.5, 0.25, 0].map(mult => Matchups.offenseWeight(mult)), [2, 1, 1, 0, -1, -2, -2]);
 		const strip = Matchups.renderCardStrip({species: 'Heatran', ability: 'Flame Body', moves: []}, dex, true);
 		assert.match(strip, /Bug: takes ×¼/);
 		assert.match(strip, /<small>×¼<\/small>/);
+	});
+
+	it('lists every damaging move in offense tooltips', () => {
+		const clefable = {species: 'Clefable', ability: 'Magic Guard', moves: ['Moonblast', 'Calm Mind', 'Flamethrower']};
+		const fire = Matchups.offense(clefable, dex).Fire;
+		assert.equal(fire.mult, 0.5);
+		assert.deepEqual(fire.moves.map(move => [move.name, move.mult]), [['Moonblast', 0.5], ['Flamethrower', 0.5]]);
+		// Best first
+		assert.deepEqual(Matchups.offense(clefable, dex).Dragon.moves.map(move => move.name), ['Moonblast', 'Flamethrower']);
+		assert.deepEqual(Matchups.offense(clefable, dex).Ice.moves.map(move => move.name), ['Flamethrower', 'Moonblast']);
+		const strip = Matchups.renderCardStrip(clefable, dex, true);
+		assert.match(strip, /title="Fire: Moonblast ×½, Flamethrower ×½"/);
+		const sylveon = {species: 'Sylveon', ability: 'Pixilate', moves: ['Hyper Voice', 'Shadow Ball']};
+		assert.match(Matchups.renderCardStrip(sylveon, dex, true), /title="Dragon: Hyper Voice ×2 \(Pixilate: Fairy\), Shadow Ball ×1"/);
 	});
 
 	it('renders escaped HTML', () => {
