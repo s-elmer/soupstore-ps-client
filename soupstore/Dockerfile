@@ -10,6 +10,8 @@ FROM node:24.21.0-trixie-slim AS build
 ARG SOUPSTORE_CLIENT_HOST=
 ARG SOUPSTORE_SERVER=
 ARG SOUPSTORE_REPLAYS_HOST=
+# Local test build over plain HTTP (see soupstore/build.sh); never for production
+ARG SOUPSTORE_LOCAL=
 WORKDIR /server
 COPY --from=server package.json package-lock.json ./
 RUN npm ci --omit=optional --no-audit --no-fund
@@ -19,7 +21,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund
 COPY . .
 RUN SOUPSTORE_CLIENT_HOST="$SOUPSTORE_CLIENT_HOST" SOUPSTORE_SERVER="$SOUPSTORE_SERVER" \
-	SOUPSTORE_REPLAYS_HOST="$SOUPSTORE_REPLAYS_HOST" soupstore/build.sh /server /out
+	SOUPSTORE_REPLAYS_HOST="$SOUPSTORE_REPLAYS_HOST" SOUPSTORE_LOCAL="$SOUPSTORE_LOCAL" soupstore/build.sh /server /out
 
 FROM caddy:2.11.4-alpine
 ENV XDG_CONFIG_HOME=/tmp/caddy-config XDG_DATA_HOME=/tmp/caddy-data
