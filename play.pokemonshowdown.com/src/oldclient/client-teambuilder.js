@@ -860,11 +860,12 @@
 					iconCache: ''
 				};
 			} else {
-				var format = this.curFolder || 'gen9';
+				// Soup Store: new teams start in our format while other formats are hidden
+				var format = this.curFolder || SoupStore.defaultFormat('teambuilder') || 'gen9';
 				var folder = '';
 				if (format && format.charAt(format.length - 1) === '/') {
 					folder = format.slice(0, -1);
-					format = 'gen9';
+					format = SoupStore.defaultFormat('teambuilder') || 'gen9';
 				}
 				newTeam = {
 					name: (isBox ? 'Box ' : 'Untitled ') + (teams.length + 1),
@@ -1206,8 +1207,10 @@
 
 			var buf = '';
 			if (this.exportMode) {
-				buf = '<div class="pad"><button name="back" class="button"><i class="fa fa-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> <button name="saveImport" class="button"><i class="fa fa-upload"></i> Import/Export</button> <button name="saveImport" class="savebutton button"><i class="fa fa-floppy-o"></i> Save</button></div>';
-				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + BattleLog.escapeHTML(Storage.exportTeam(this.curSetList)) + '</textarea></div>';
+				buf = '<div class="pad"><button name="back" class="button"><i class="fa fa-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> <button name="saveImport" class="button"><i class="fa fa-upload"></i> Import/Export</button> <button name="saveImport" class="savebutton button"><i class="fa fa-floppy-o"></i> Save</button>';
+				// Soup Store: convert a pasted Champions team (Stat Points, Level 50) to our format
+				buf += '<br /><button name="saveImport" value="champions" class="button" title="Converts a team from a Champions format to Soup Store: Stat Points become EVs, and Level 50 becomes Level 100"><i class="fa fa-exchange"></i> Import from Champions</button></div>';
+				buf += '<div class="teamedit soupstore-teamedit"><textarea class="textbox" rows="17">' + BattleLog.escapeHTML(Storage.exportTeam(this.curSetList)) + '</textarea></div>';
 			} else {
 				buf = '<div class="pad"><button name="back" class="button"><i class="fa fa-chevron-left"></i> List</button> ';
 				buf += '<input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> ';
@@ -1429,7 +1432,8 @@
 			return buf;
 		},
 
-		saveImport: function () {
+		saveImport: function (fromChampions) {
+			fromChampions = fromChampions === 'champions';
 			var text = this.$('.teamedit textarea').val();
 			var url = this.importableUrl(text);
 
@@ -1440,6 +1444,7 @@
 					type: 'GET',
 					url: url,
 					success: function (data) {
+						var sets;
 						if (/^https?:\/\/pokepast\.es\/.*\/json\s*$/.test(url)) {
 							var notes = data.notes.split('\n');
 							if (notes[0].startsWith('Format: ')) {
@@ -1456,12 +1461,12 @@
 								self.$('.teamnameedit').val(title).change();
 							}
 
-							Storage.activeSetList = self.curSetList = Storage.importTeam(data.paste);
+							sets = Storage.importTeam(data.paste);
 						} else {
-							Storage.activeSetList = self.curSetList = Storage.importTeam(data);
+							sets = Storage.importTeam(data);
 						}
 						self.$('.teamedit textarea, .teamedit .savebutton').attr('disabled', null);
-						self.back();
+						self.finishImport(sets, fromChampions);
 					},
 					error: function () {
 						app.addPopupMessage("Could not fetch a team from this URL. Make sure you copied the full link, or paste the team in by hand.");
@@ -1469,8 +1474,22 @@
 					}
 				});
 			} else {
-				Storage.activeSetList = this.curSetList = Storage.importTeam(text);
-				this.back();
+				this.finishImport(Storage.importTeam(text), fromChampions);
+			}
+		},
+		finishImport: function (sets, fromChampions) {
+			// Soup Store: Champions teams are converted to our format (see soupstore.js)
+			var warnings = [];
+			if (fromChampions) {
+				var result = SoupStore.convertChampionsSets(sets);
+				if (result.error) return app.addPopupMessage(result.error);
+				warnings = result.warnings;
+				if (this.curTeam.format !== SoupStore.teamFormat) this.changeFormat(SoupStore.teamFormat);
+			}
+			Storage.activeSetList = this.curSetList = sets;
+			this.back();
+			if (warnings.length) {
+				app.addPopupMessage("Your team was converted, with some changes:\n\n" + warnings.join('\n'));
 			}
 		},
 		importableUrl: function (value) {

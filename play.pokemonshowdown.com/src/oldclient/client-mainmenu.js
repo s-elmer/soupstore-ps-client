@@ -43,7 +43,7 @@
 				buf += '</div>';
 			} else {
 				buf += '<div class="menugroup"><form class="battleform" data-search="1">';
-				buf += '<p><label class="label">Format:</label>' + this.renderFormats() + '</p>';
+				buf += '<p><label class="label">Format:</label>' + this.renderFormats('', false, 'search') + '</p>';
 				buf += '<p><label class="label">Team:</label>' + this.renderTeams() + '</p>';
 				buf += '<p><label class="label" name="partner" style="display:none">';
 				buf += 'Partner:<br />';
@@ -770,7 +770,7 @@
 			if (!this.searching || $.isArray(this.searching) && !this.searching.length) {
 				var format = $formatButton.val();
 				var teamIndex = $teamButton.val();
-				$formatButton.replaceWith(this.renderFormats(format));
+				$formatButton.replaceWith(this.renderFormats(format, false, 'search'));
 				$teamButton.replaceWith(this.renderTeams(format, teamIndex));
 
 				$searchForm.find('button.big').html('<strong>Battle!</strong><br /><small>Find a random opponent</small>').removeClass('disabled');
@@ -924,7 +924,8 @@
 			this.$('button[name=format]').each(function (i, el) {
 				var val = el.value;
 				var $teamButton = $(el).closest('form').find('button[name=team]');
-				$(el).replaceWith(self.renderFormats(val));
+				var selectType = $(el).closest('form').data('search') ? 'search' : 'challenge';
+				$(el).replaceWith(self.renderFormats(val, false, selectType));
 				$teamButton.replaceWith(self.renderTeams(val));
 			});
 		},
@@ -1097,7 +1098,7 @@
 		// format/team selection
 
 		curFormat: '',
-		renderFormats: function (formatid, noChoice) {
+		renderFormats: function (formatid, noChoice, selectType) {
 			if (!window.BattleFormats) {
 				return '<button class="select formatselect" name="format" disabled value="' + BattleLog.escapeHTML(formatid) + '"><em>Loading...</em></button>';
 			}
@@ -1106,6 +1107,8 @@
 			}
 			if (!noChoice) {
 				this.curFormat = formatid;
+				// Soup Store: start with our format while other formats are hidden
+				if (!this.curFormat) this.curFormat = SoupStore.defaultFormat(selectType || 'challenge');
 				if (!this.curFormat) {
 					if (BattleFormats['gen9randombattle']) {
 						this.curFormat = 'gen9randombattle';
@@ -1416,6 +1419,9 @@
 			var html = '';
 			if (bufs.every(function (buf) { return !buf; })) {
 				html = '<ul class="popupmenu"><em>No formats found</em></ul>';
+				if (!Storage.prefs('allformats')) {
+					html += '<p style="max-width:240px">Only Soup Store formats are shown. To see every Pok&eacute;mon Showdown format, turn on <strong>Show all formats</strong> in Options (the gear icon).</p>';
+				}
 			} else {
 				for (var i = 1, l = bufs.length; i < l; i++) {
 					if (!bufs[i]) continue;
@@ -1459,6 +1465,8 @@
 			this.update();
 		},
 		shouldDisplayFormat: function (format) {
+			// Soup Store: only our formats, unless "Show all formats" is on in Options
+			if (SoupStore.isFormatHidden(format.id)) return false;
 			if (this.selectType === 'teambuilder') {
 				if (!format.isTeambuilderFormat) return false;
 			} else {
