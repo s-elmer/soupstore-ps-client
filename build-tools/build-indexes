@@ -604,7 +604,14 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				const key = format.id.replace(/^gen\d+/, '');
 				const itemBans = {};
 				for (const id in Dex.data.Items) {
-					if (formatDex.items.get(id).exists && ruleTable.isBanned('item:' + id)) itemBans[id] = 1;
+					const item = formatDex.items.get(id);
+					if (!item.exists) continue;
+					// Banned by the format, not legal in the format's item pool (e.g. Z-Crystals), or a Mega Stone
+					// for a banned Mega (e.g. Lucarionite when Lucario-Mega is banned)
+					const megaBanned = item.megaStone && Object.values(item.megaStone).some(forme => (
+						ruleTable.isBannedSpecies(formatDex.species.get(forme))
+					));
+					if (ruleTable.isBanned('item:' + id) || item.isNonstandard || megaBanned) itemBans[id] = 1;
 				}
 				const abilityBans = {};
 				for (const id in Dex.data.Abilities) {
