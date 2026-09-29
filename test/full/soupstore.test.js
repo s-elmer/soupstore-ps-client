@@ -48,6 +48,24 @@ describe('Soup Store teambuilder', () => {
 		assert.ok(!learnableMoves('Smeargle').includes('shedtail'));
 	});
 
+	it('generates item, ability and combination bans for the Soup Store Showdex extension', () => {
+		const table = BattleTeambuilderTable.natdexchampions;
+		assert.ok(table.metagameItemBans.soupstoreseason4.quickclaw);
+		assert.ok(table.metagameItemBans.soupstoreseason4.kingsrock);
+		assert.ok(!table.metagameItemBans.soupstoreseason4.leftovers);
+		// Z-Crystals aren't in the item pool, and Mega Stones for banned Megas are banned with them
+		assert.ok(table.metagameItemBans.soupstoreseason4.dragoniumz);
+		assert.ok(table.metagameItemBans.soupstoreseason4.lucarionite);
+		// Legal Mega Stones stay legal
+		assert.ok(!table.metagameItemBans.soupstoreseason4.garchompite);
+		assert.ok(!table.metagameItemBans.soupstoreseason4.starminite);
+		assert.ok(table.metagameAbilityBans.soupstoreseason4.moody);
+		assert.ok(!table.metagameAbilityBans.soupstoreseason4.levitate);
+		const combos = table.metagameComplexBans.soupstoreseason4.map(c => c.join(','));
+		assert.ok(combos.includes('item:alakazite,move:nastyplot'));
+		assert.ok(combos.some(c => c.startsWith('species:zygarde10') && c.endsWith('ability:powerconstruct')));
+	});
+
 	it('shows Champions move text', () => {
 		const dex = Dex.forFormat(FORMAT);
 		assert.equal(dex.modid, 'champions');

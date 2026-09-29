@@ -591,6 +591,51 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				metagameMoveBans[format.id.replace(/^gen\d+/, '')] = bans;
 			}
 			BattleTeambuilderTable['natdexchampions'].metagameMoveBans = metagameMoveBans;
+			// Item, ability and combination bans (e.g. "Alakazite + Nasty Plot") for the Soup Store Showdex
+			// extension. Combinations are lists of "kind:id" entries that must all be present on a set; combinations
+			// containing tags, types or natures can't be checked from a set alone, so they're skipped.
+			const metagameItemBans = {};
+			const metagameAbilityBans = {};
+			const metagameComplexBans = {};
+			for (const format of Dex.formats.all()) {
+				if (!format.id.includes('soupstore') || format.effectType !== 'Format') continue;
+				const ruleTable = Dex.formats.getRuleTable(format);
+				const formatDex = Dex.forFormat(format);
+				const key = format.id.replace(/^gen\d+/, '');
+				const itemBans = {};
+				for (const id in Dex.data.Items) {
+					const item = formatDex.items.get(id);
+					if (!item.exists) continue;
+					// Banned by the format, not legal in the format's item pool (e.g. Z-Crystals), or a Mega Stone
+					// for a banned Mega (e.g. Lucarionite when Lucario-Mega is banned)
+					const megaBanned = item.megaStone && Object.values(item.megaStone).some(forme => (
+						ruleTable.isBannedSpecies(formatDex.species.get(forme))
+					));
+					if (ruleTable.isBanned('item:' + id) || item.isNonstandard || megaBanned) itemBans[id] = 1;
+				}
+				const abilityBans = {};
+				for (const id in Dex.data.Abilities) {
+					if (formatDex.abilities.get(id).exists && ruleTable.isBanned('ability:' + id)) abilityBans[id] = 1;
+				}
+				const complexBans = [];
+				for (const [, , limit, bans] of ruleTable.complexBans) {
+					if (limit !== 0 || bans.length < 2) continue;
+					const combo = [];
+					for (const ban of bans) {
+						const [kind, id] = ban.split(':');
+						if (kind === 'pokemon') combo.push('species:' + id);
+						else if (['move', 'item', 'ability'].includes(kind)) combo.push(kind + ':' + id);
+						else break;
+					}
+					if (combo.length === bans.length) complexBans.push(combo);
+				}
+				metagameItemBans[key] = itemBans;
+				metagameAbilityBans[key] = abilityBans;
+				metagameComplexBans[key] = complexBans;
+			}
+			BattleTeambuilderTable['natdexchampions'].metagameItemBans = metagameItemBans;
+			BattleTeambuilderTable['natdexchampions'].metagameAbilityBans = metagameAbilityBans;
+			BattleTeambuilderTable['natdexchampions'].metagameComplexBans = metagameComplexBans;
 		} else if (isVGC) {
 			BattleTeambuilderTable[gen + 'vgc'] = {};
 			BattleTeambuilderTable[gen + 'vgc'].tiers = tiers;
