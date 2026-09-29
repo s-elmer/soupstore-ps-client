@@ -20,6 +20,10 @@ copy('apple-touch-icon.png', 'apple-touch-icon.png');
 
 fs.mkdirSync(path.join(out, 'soupstore'), { recursive: true });
 fs.copyFileSync(path.join(here, 'soupstore.css'), path.join(out, 'soupstore', 'soupstore.css'));
+// The page Pokemon Showdown sends players back to after "Log in with Pokemon Showdown"
+for (const file of ['oauth-callback.html', 'oauth-callback.js']) {
+	fs.copyFileSync(path.join(here, file), path.join(out, 'soupstore', file));
+}
 
 // Web app manifest
 const manifestPath = path.join(out, 'manifest.json');

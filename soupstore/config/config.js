@@ -35,6 +35,12 @@ Config.newsURL = 'https://replay.soupstore.dev/api/news';
 Config.loginServerHost = 'play.pokemonshowdown.com';
 
 
+// "Log in with Pokémon Showdown" (play.pokemonshowdown.com/src/oldclient/soupstore-login.js).
+// The whole feature stays hidden until a client ID is set. Request one from PS (the steps
+// are in soupstore/README.md), then uncomment this and put the ID in.
+// Config.oauth = { clientId: '' };
+
+
 Config.roomsFirstOpenScript = function () {
 };
 

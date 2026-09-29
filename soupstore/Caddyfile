@@ -14,6 +14,8 @@
 		Referrer-Policy "strict-origin-when-cross-origin"
 		# Scripts only from this site (the client uses inline scripts and eval).
 		# connect-src: the game server and PS's login server (password logins go there directly).
+		# "Log in with Pokemon Showdown": pokemonshowdown.com (connect-src) has the user API that gives a
+		# player's capitalized name. The login itself talks to play.pokemonshowdown.com, already allowed.
 		# PokePaste, used by the teambuilder:
 		#   - pokepast.es (form-action): "Upload to PokePaste" posts the team to https://pokepast.es/create in a new tab.
 		#   - pokepast.es and gist.githubusercontent.com (connect-src): "Import from text or URL" fetches the paste or gist.
@@ -23,7 +25,7 @@
 		#     the page itself (Chrome fetches it from the extension's background script, outside this policy).
 		#   - moz-extension: the extension's own scripts, styles, fonts, images and data files, which Firefox loads
 		#     into the page under this policy (Chrome exempts extension files, so it doesn't need chrome-extension:).
-		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' moz-extension:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com moz-extension:; img-src 'self' data: blob: https: moz-extension:; media-src 'self' https://play.pokemonshowdown.com; font-src 'self' https://fonts.gstatic.com moz-extension:; connect-src 'self' https://play.pokemonshowdown.com https://pokepast.es https://gist.githubusercontent.com https://pkmn.github.io moz-extension: {$CSP_SERVER_SOURCES:https://showdown.soupstore.dev wss://showdown.soupstore.dev} {$CSP_NEWS_SOURCE:https://replay.soupstore.dev}; frame-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://play.pokemonshowdown.com https://pokepast.es"
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' moz-extension:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com moz-extension:; img-src 'self' data: blob: https: moz-extension:; media-src 'self' https://play.pokemonshowdown.com; font-src 'self' https://fonts.gstatic.com moz-extension:; connect-src 'self' https://play.pokemonshowdown.com https://pokemonshowdown.com https://pokepast.es https://gist.githubusercontent.com https://pkmn.github.io moz-extension: {$CSP_SERVER_SOURCES:https://showdown.soupstore.dev wss://showdown.soupstore.dev} {$CSP_NEWS_SOURCE:https://replay.soupstore.dev}; frame-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://play.pokemonshowdown.com https://pokepast.es"
 	}
 
 	# Sprites and sounds aren't in the client repo; PS hosts them.
