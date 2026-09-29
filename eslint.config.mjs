@@ -45,7 +45,7 @@ export default configure([
 				"app": false, "toID": false, "toRoomid": false, "toUserid": false, "toName": false, "PSUtils": false, "MD5": false,
 				"ChatHistory": false, "Topbar": false, "UserList": false,
 				// Soup Store helpers (src/oldclient/soupstore.js)
-				"SoupStore": false, "SoupStoreMatchups": false,
+				"SoupStore": false, "SoupStoreMatchups": false, "SoupStoreLogin": false,
 
 				// Rooms
 				"Room": false, "BattleRoom": false, "ChatRoom": false, "ConsoleRoom": false, "HTMLRoom": false, "LadderRoom": false, "MainMenuRoom": false, "RoomsRoom": false, "BattlesRoom": false, "TeambuilderRoom": false, "ResourceRoom": false,

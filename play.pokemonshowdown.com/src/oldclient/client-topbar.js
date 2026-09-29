@@ -988,8 +988,15 @@
 			}
 			buf += '<p class="buttonbar"><button type="submit" class="button"><strong>Choose name</strong></button> <button type="button" name="close" class="button">Cancel</button></p>';
 
+			// Soup Store: log in with Pokemon Showdown (nothing while it's turned off)
+			buf += SoupStoreLogin.popupHTML();
+
 			buf += '</form>';
 			this.$el.html(buf);
+		},
+		soupstoreLogin: function () {
+			this.close();
+			SoupStoreLogin.start();
 		},
 		events: {
 			'input .textbox': 'updateColor'
@@ -1145,6 +1152,8 @@
 					buf += '<p><small>Your password is sent directly to Pok&eacute;mon Showdown\'s login server (' + BattleLog.escapeHTML(Config.loginServerHost) + '), not to this site.</small></p>';
 				}
 				buf += '<p class="buttonbar"><button type="submit" class="button"><strong>Log in</strong></button> <button type="button" name="close" class="button">Cancel</button></p>';
+				// Soup Store: log in with Pokemon Showdown (nothing while it's turned off)
+				buf += SoupStoreLogin.popupHTML();
 			}
 
 			buf += '<p class="or">or</p>';
@@ -1170,6 +1179,10 @@
 		login: function () {
 			this.close();
 			app.addPopup(LoginPopup);
+		},
+		soupstoreLogin: function () {
+			this.close();
+			SoupStoreLogin.start();
 		},
 		submit: function (data) {
 			this.close();

@@ -46,6 +46,13 @@ if (env.SOUPSTORE_CLIENT_HOST || env.SOUPSTORE_REPLAYS_HOST) {
 	if (env.SOUPSTORE_REPLAYS_HOST) routes.replays = env.SOUPSTORE_REPLAYS_HOST;
 	fs.writeFileSync('config/routes.json', JSON.stringify(routes, null, 4) + '\n');
 }
+// For tests: turn on "Log in with Pokemon Showdown" against a mock login server
+if (env.SOUPSTORE_OAUTH_CLIENT_ID) {
+	const oauth = { clientId: env.SOUPSTORE_OAUTH_CLIENT_ID };
+	if (env.SOUPSTORE_OAUTH_ROOT) oauth.root = env.SOUPSTORE_OAUTH_ROOT;
+	if (env.SOUPSTORE_OAUTH_USERS_ROOT) oauth.usersRoot = env.SOUPSTORE_OAUTH_USERS_ROOT;
+	fs.appendFileSync('config/config.js', `\nConfig.oauth = ${JSON.stringify(oauth)};\n`);
+}
 if (env.SOUPSTORE_SERVER) {
 	const [host, port = '443'] = env.SOUPSTORE_SERVER.split(':');
 	let config = fs.readFileSync('config/config.js', 'utf8');

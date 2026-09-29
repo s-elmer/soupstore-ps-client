@@ -355,29 +355,34 @@ function toId() {
 				 * See `finishRename` above for a list of events this can emit.
 				 */
 				this.challstr = challstr;
-				var self = this;
-				$.post(this.getActionPHP(), {
-					act: 'upkeep',
-					challstr: this.challstr
-				}, Storage.safeJSON(function (data) {
-					self.loaded = true;
-					if (!data.username) {
-						app.topbar.updateUserbar();
-						return;
-					}
-
-					// | , ; are not valid characters in names
-					data.username = data.username.replace(/[\|,;]+/g, '');
-
-					if (data.loggedin) {
-						self.set('registered', {
-							username: data.username,
-							userid: toUserid(data.username)
-						});
-					}
-					self.finishRename(data.username, data.assertion);
-				}), 'text');
+				// Soup Store: a saved "Log in with Pokemon Showdown" login takes over (see soupstore-login.js)
+				if (window.SoupStoreLogin && SoupStoreLogin.tryRestore(this)) return;
+				this.upkeep();
 			}
+		},
+		upkeep: function () {
+			var self = this;
+			$.post(this.getActionPHP(), {
+				act: 'upkeep',
+				challstr: this.challstr
+			}, Storage.safeJSON(function (data) {
+				self.loaded = true;
+				if (!data.username) {
+					app.topbar.updateUserbar();
+					return;
+				}
+
+				// | , ; are not valid characters in names
+				data.username = data.username.replace(/[\|,;]+/g, '');
+
+				if (data.loggedin) {
+					self.set('registered', {
+						username: data.username,
+						userid: toUserid(data.username)
+					});
+				}
+				self.finishRename(data.username, data.assertion);
+			}), 'text');
 		},
 		/**
 		 * Log out from the server (but remain connected as a guest).
@@ -387,8 +392,10 @@ function toId() {
 				act: 'logout',
 				userid: this.get('userid')
 			});
+			// Soup Store: forget the saved Pokemon Showdown login too (see soupstore-login.js)
+			if (window.SoupStoreLogin) SoupStoreLogin.clear();
 			app.send('/logout');
-			app.trigger('init:socketclosed', "You have been logged out and disconnected.<br /><br />If you wanted to change your name while staying connected, use the 'Change Name' button or the '/nick' command.", false);
+			app.trigger('init:socketclosed', "You have been logged out and disconnected.<br /><br />If you wanted to change your name while staying connected, use the 'Change Name' button or the '/nick' command." + (window.SoupStoreLogin ? SoupStoreLogin.logoutNote() : ''), false);
 			app.socket.close();
 		},
 		setPersistentName: function (name) {
