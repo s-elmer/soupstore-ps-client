@@ -47,7 +47,7 @@ Branding is applied to the **build output** by `soupstore/brand.mjs`, so upstrea
 
 If upstream changes the markup, `brand.mjs` fails loudly instead of silently skipping a step.
 
-The build also produces `js/replay-embed.js`, which our replay site uses as its replay player so replays get the same Soup Store handling (Champions move data). `soupstore/Caddyfile` allows the replay site to load this site's fonts (CORS). Its Content-Security-Policy also allows what the [Soup Store Showdex](https://github.com/s-elmer/soupstore-showdex) extension loads into the page: Google Fonts, preset data from `pkmn.github.io`, and (in Firefox) the extension's own files.
+The build also produces `js/replay-embed.js`, which our replay site uses as its replay player so replays get the same Soup Store handling (Champions move data). `soupstore/Caddyfile` allows the replay site to load this site's fonts (CORS). Its Content-Security-Policy also allows what the [Soup Store Showdex](https://github.com/s-elmer/soupstore-showdex) extension loads into the page: Google Fonts, preset data from `pkmn.github.io`, and (in Firefox) the extension's own files. It also allows PokePaste (`pokepast.es`, plus `gist.githubusercontent.com` for importing), which the teambuilder's "Upload to PokePaste" and "Import from text or URL" use.
 
 ## Building
 
