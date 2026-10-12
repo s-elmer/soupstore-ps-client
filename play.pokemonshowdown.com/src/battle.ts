@@ -367,8 +367,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 			if (ppUsed[1] < 0) ppUsed[1] = 0;
 			const move = this.side.battle.dex.moves.get(entry[0]);
 			let maxpp = (move.pp === 1 || move.noPPBoosts ? move.pp : move.pp * 8 / 5);
-			// Soup Store formats use Champions mechanics (see soupstore/README.md)
-			if (this.side.battle.tier.includes('Champions') || this.side.battle.tier.includes('Soup Store')) {
+			if (this.side.battle.format.isChampions || this.side.battle.format.id.includes('soupstore')) {
 				maxpp = move.pp > 20 ? 20 : move.pp;
 				maxpp = move.pp === 1 || move.noPPBoosts ? move.pp : (move.pp / 5 + 1) * 4;
 			}
@@ -958,7 +957,7 @@ export class Side {
 		}
 		pokemon.statusData.toxicTurns = 0;
 		if (this.battle.gen === 5) pokemon.statusData.sleepTurns = 0;
-		if (this.battle.tier.includes('Champions') || this.battle.tier.includes('Soup Store')) {
+		if (this.battle.format.isChampions || this.battle.format.id.includes('soupstore')) {
 			pokemon.timesAttacked = 0;
 		}
 		this.lastPokemon = pokemon;
@@ -1152,6 +1151,7 @@ export class Battle {
 	teamPreviewCount = 0;
 	speciesClause = false;
 	tier = '';
+	format = Dex.formats.get('');
 	gameType: 'singles' | 'doubles' | 'triples' | 'multi' | 'freeforall' | 'rotation' = 'singles';
 	compatMode = true;
 	rated: string | boolean = false;
@@ -1339,6 +1339,7 @@ export class Battle {
 		// activity queue state
 		this.activeMoveIsSpread = null;
 		this.currentStep = 0;
+		this.preemptStepQueue = [];
 		this.resetTurnsSinceMoved();
 		this.nextStep();
 	}
@@ -3527,6 +3528,7 @@ export class Battle {
 		}
 		case 'tier': {
 			this.tier = args[1];
+			this.format = Dex.formats.get(this.tier);
 			if (this.tier.endsWith('Random Battle')) {
 				this.speciesClause = true;
 			}
@@ -3534,13 +3536,13 @@ export class Battle {
 				this.messageFadeTime = 40;
 				this.isBlitz = true;
 			}
-			if (this.tier.includes(`Let's Go`)) {
+			if (this.format.isLetsGo) {
 				this.dex = Dex.mod('gen7letsgo' as ID);
 			}
 			if (this.tier.includes('Super Staff Bros')) {
 				this.dex = Dex.mod('gen9ssb' as ID);
 			}
-			if (this.tier.includes(`Champions`) || this.tier.includes(`Soup Store`)) {
+			if (this.format.isChampions || this.format.id.includes('soupstore')) {
 				this.dex = Dex.mod('champions' as ID);
 			}
 			this.log(args);
