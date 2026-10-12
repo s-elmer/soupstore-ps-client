@@ -29,7 +29,10 @@
 	}
 
 	# Sprites and sounds aren't in the client repo; PS hosts them.
+	# The redirect is cached for a day, so a browser that has already been sent to PS for a sprite
+	# goes straight there next time instead of asking us again (a battle page asks for dozens).
 	@psassets path /sprites/* /audio/*
+	header @psassets Cache-Control "public, max-age=86400"
 	redir @psassets https://play.pokemonshowdown.com{uri} 302
 
 	# The replay site's player runs our js/replay-embed.js, which loads this site's
@@ -54,6 +57,14 @@
 		# Assets referenced with a ?cachebuster can be cached for a week
 		@versioned expression {http.request.uri.query} != ""
 		header @versioned Cache-Control "public, max-age=604800"
+		# Images and fonts without a cachebuster (the battle page loads ~100 of them from /fx/) rarely
+		# change. A day is long enough that repeat visitors stop refetching them on every page, and
+		# short enough that a changed image shows up quickly. Scripts, data and HTML stay as above.
+		@staticassets {
+			path_regexp \.(?:png|jpe?g|gif|webp|svg|ico|woff2?)$
+			expression {http.request.uri.query} == ""
+		}
+		header @staticassets Cache-Control "public, max-age=86400"
 		file_server
 	}
 }
