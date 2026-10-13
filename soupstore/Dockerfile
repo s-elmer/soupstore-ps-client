@@ -23,7 +23,7 @@ COPY . .
 RUN SOUPSTORE_CLIENT_HOST="$SOUPSTORE_CLIENT_HOST" SOUPSTORE_SERVER="$SOUPSTORE_SERVER" \
 	SOUPSTORE_REPLAYS_HOST="$SOUPSTORE_REPLAYS_HOST" SOUPSTORE_LOCAL="$SOUPSTORE_LOCAL" soupstore/build.sh /server /out
 
-FROM caddy:2.11.4-alpine
+FROM caddy:2.11.7-alpine
 ENV XDG_CONFIG_HOME=/tmp/caddy-config XDG_DATA_HOME=/tmp/caddy-data
 COPY soupstore/Caddyfile /etc/caddy/Caddyfile
 COPY --from=build /out /srv
