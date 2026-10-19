@@ -6,7 +6,7 @@
 #
 # Optional build args override hostnames (e.g. for a local test build).
 
-FROM node:24.21.0-trixie-slim AS build
+FROM node:24.22.0-trixie-slim AS build
 ARG SOUPSTORE_CLIENT_HOST=
 ARG SOUPSTORE_SERVER=
 ARG SOUPSTORE_REPLAYS_HOST=
