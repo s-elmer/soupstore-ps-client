@@ -3988,7 +3988,7 @@ class DetailsForm extends preact.Component<{
 							class="textbox inputform numform default-placeholder" style="width: 50px"
 							onInput={this.changeHappiness} onChange={this.changeHappiness}
 						/></label></p>
-					) : (editor.gen < 8 || editor.format.isNatDex) && (
+					) : (editor.gen < 8 || editor.format.isNatDex || editor.format.id.includes('soupstore')) && (
 						<p><label class="label">{TL.label(TL`Happiness`)}<input
 							name="happiness" value={set.happiness ?? ''} placeholder="255"
 							type="number" inputMode="numeric" min="0" max="255" step="1"
